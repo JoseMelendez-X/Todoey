@@ -9,8 +9,23 @@
 import UIKit
 
 class ToDoListTableViewController: UITableViewController {
+    
+    // MARK: - Properties
 
     var itemArray = ["Jose", "Eddie", "James"]
+    var defaults = UserDefaults.standard
+    
+    
+    // MARK: - Lifecycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        guard let items = defaults.array(forKey: "itemArray") as? [String] else {return}
+        itemArray = items
+    }
+    
+    
     
     // MARK: - Table view data source
     
@@ -62,6 +77,8 @@ class ToDoListTableViewController: UITableViewController {
         let alertAction = UIAlertAction(title: "Add item", style: .default) { (action) in
             //add new item to itemArray
             textField.text == "" ? textField.text = "" : self.itemArray.append(textField.text!)
+            //save to userDefaults
+            self.defaults.set(self.itemArray, forKey: "itemArray")
             //reload the new data added to itemArray
             self.tableView.reloadData()
         }
