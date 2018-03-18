@@ -12,7 +12,7 @@ class ToDoListTableViewController: UITableViewController {
     
     // MARK: - Properties
 
-    var itemArray = ["Jose", "Eddie", "James"]
+    var itemArray = [Item]()
     var defaults = UserDefaults.standard
     
     
@@ -21,8 +21,9 @@ class ToDoListTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let items = defaults.array(forKey: "itemArray") as? [String] else {return}
-        itemArray = items
+     
+     guard let items = defaults.array(forKey: "itemArray") as? [Item] else {return}
+       itemArray = items
     }
     
     
@@ -38,7 +39,9 @@ class ToDoListTableViewController: UITableViewController {
         //create a table view cell object
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        cell.textLabel?.text = itemArray[indexPath.row].title
+        
+        cell.accessoryType = itemArray[indexPath.row].done ? .checkmark : .none
         
         return cell
     }
@@ -48,15 +51,9 @@ class ToDoListTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        //add checkmark at the selected cell
-        let cellAtIndex = tableView.cellForRow(at: indexPath)
-        
-        if cellAtIndex?.accessoryType == .checkmark {
-            cellAtIndex?.accessoryType = .none
-        } else {
-            cellAtIndex?.accessoryType = .checkmark
-        }
-        
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+  
+        tableView.reloadData()
         
         //removes the gray highlighting of a cell
         tableView.deselectRow(at: indexPath, animated: true)
@@ -75,8 +72,12 @@ class ToDoListTableViewController: UITableViewController {
         
         //alert action
         let alertAction = UIAlertAction(title: "Add item", style: .default) { (action) in
+            //create a new item
+            let newItem = Item()
+            newItem.title = textField.text!
             //add new item to itemArray
-            textField.text == "" ? textField.text = "" : self.itemArray.append(textField.text!)
+             self.itemArray.append(newItem)
+            print(self.itemArray.count)
             //save to userDefaults
             self.defaults.set(self.itemArray, forKey: "itemArray")
             //reload the new data added to itemArray
